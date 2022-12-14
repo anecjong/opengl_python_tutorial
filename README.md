@@ -1,2 +1,2 @@
 # opengl_python_tutorial
-python code https://learnopengl.com/
+python code of https://learnopengl.com/
