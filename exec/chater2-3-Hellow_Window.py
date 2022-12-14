@@ -17,7 +17,6 @@ def main():
         print("Failed to create glfw window")
         glfw.terminate()
         return -1
-    print(type(window))
 
     # make the context of our window the main context on the current thread
     glfw.make_context_current(window)
