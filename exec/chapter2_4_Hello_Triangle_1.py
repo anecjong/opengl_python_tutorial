@@ -98,7 +98,6 @@ def main():
         glfw.poll_events()
 
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
-        gl.glBindVertexArray(vao)
         # glDrawyArrays(primitive type, starting index of the vertex array, how many vertices)
         gl.glDrawArrays(gl.GL_TRIANGLES, 0, 3)
 
