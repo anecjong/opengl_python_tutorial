@@ -99,6 +99,7 @@ def main():
 
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
         # glDrawyArrays(primitive type, starting index of the vertex array, how many vertices)
+        gl.glBindVertexArray(vao)
         gl.glDrawArrays(gl.GL_TRIANGLES, 0, 3)
 
         glfw.swap_buffers(window)
