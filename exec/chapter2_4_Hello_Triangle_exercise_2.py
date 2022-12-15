@@ -40,54 +40,51 @@ def main():
         glfw.terminate()
         return -1
 
-    # make_context_current function make viewport with window size one time
     glfw.make_context_current(window)
     glfw.set_window_size_callback(window, on_resize)
 
-    # triangle on plane (z = 0)
-    vertices = np.array([
-        -0.5, -0.5,  0.0,
-        0.5, -0.5,  0.0,
-        0.0,  0.5,  0.0], dtype=np.float32)
-    
-    # vertices_size ~ size of vertices (bytes)
-    vertices_size = vertices.size * vertices.itemsize
-
-    # glGenBuffers(count, buffers: specifies an array in which the generated buffer object names are stored.)
-    # type of vertex buffer object: GL_ARRAY_BUFFER
-    vbo = gl.glGenBuffers(1)
-
-    # OpenGL allows us to bind several buffers at once as long as they have a different buffer type
-    # Any buffer calls we make on the GL_ARRAY_BUFFER target will be used to configure the currently bound buffer.
-    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, vbo)
-
-    # copy previously dfined vertex data into the buffer's memory
-    # glBufferData function is a specifically targeted to copy user-defined data into the currently bounded buffer.
-    # glBufferData(type of the buffer, size of the data, actual data, graphic cards managing policy)
-    # 4th parameter: GL_STREAM_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW
-    gl.glBufferData(gl.GL_ARRAY_BUFFER, vertices_size, vertices, gl.GL_STATIC_DRAW)
-
-    # compile vertex shader
     vertex_shader = shaders.compileShader(vertex_shader_source, gl.GL_VERTEX_SHADER)
-
-    # compile fragment shader
     fragment_shader = shaders.compileShader(fragment_shader_source, gl.GL_FRAGMENT_SHADER)
 
-    # linking shaders to program and delete shader
     shader = shaders.compileProgram(vertex_shader, fragment_shader)
     gl.glDeleteShader(vertex_shader)
     gl.glDeleteShader(fragment_shader)
     gl.glUseProgram(shader)
 
-    # vertex array object
-    # save vertex attributes pointers
-    vao = gl.glGenVertexArrays(1)
-    gl.glBindVertexArray(vao)
+    vertices = np.array([
+        -1.0, -0.5,  0.0,
+        0.0, -0.5,  0.0,
+        -0.5,  0.5,  0.0,
+        ], dtype=np.float32)
+    
+    vertices_size = vertices.size * vertices.itemsize
+
+    vbo_1 = gl.glGenBuffers(1)
+    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, vbo_1)
+    gl.glBufferData(gl.GL_ARRAY_BUFFER, vertices_size, vertices, gl.GL_STATIC_DRAW)
+
+    vao_1 = gl.glGenVertexArrays(1)
+    gl.glBindVertexArray(vao_1)
 
     position = gl.glGetAttribLocation(shader, "position")
+    gl.glVertexAttribPointer(position, 3, gl.GL_FLOAT, gl.GL_FALSE, vertices.itemsize * 3, c_void_p(0))
+    gl.glEnableVertexAttribArray(position)
 
-    # glVertexAttribPointer(location of position, size of the vertex attributes, type of data, normalize,
-    # stride, offset of where the position data begins in buffer)
+    vertices = np.array([
+        0.0, -0.5, 0.0,
+        1.0, -0.5, 0.0,
+        0.5, 0.5, 0.0
+        ], dtype=np.float32)
+    
+    vertices_size = vertices.size * vertices.itemsize
+
+    vbo_2 = gl.glGenBuffers(1)
+    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, vbo_2)
+    gl.glBufferData(gl.GL_ARRAY_BUFFER, vertices_size, vertices, gl.GL_STATIC_DRAW)
+
+    vao_2 = gl.glGenVertexArrays(1)
+    gl.glBindVertexArray(vao_2)
+    position = gl.glGetAttribLocation(shader, "position")
     gl.glVertexAttribPointer(position, 3, gl.GL_FLOAT, gl.GL_FALSE, vertices.itemsize * 3, c_void_p(0))
     gl.glEnableVertexAttribArray(position)
 
@@ -98,10 +95,11 @@ def main():
         glfw.poll_events()
 
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
-        gl.glBindVertexArray(vao)
-        # glDrawyArrays(primitive type, starting index of the vertex array, how many vertices)
+        gl.glBindVertexArray(vao_1)
         gl.glDrawArrays(gl.GL_TRIANGLES, 0, 3)
 
+        gl.glBindVertexArray(vao_2)
+        gl.glDrawArrays(gl.GL_TRIANGLES, 0, 3)
         glfw.swap_buffers(window)
     glfw.terminate()
 
