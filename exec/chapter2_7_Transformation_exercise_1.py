@@ -175,7 +175,7 @@ def main():
         translation[0, 3] = sin(np.pi / 3 * now) / 2
         translation[1, 3] = sin(np.pi / 4 * now) / 2
 
-        gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader, "rotation"), 1, gl.GL_FALSE, rotation)
+        gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader, "rotation"), 1, gl.GL_TRUE, rotation)
         gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader, "translation"), 1, gl.GL_TRUE, translation)
 
         glfw.poll_events()

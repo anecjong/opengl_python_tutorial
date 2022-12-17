@@ -168,7 +168,7 @@ def main():
         r = Rotation.from_rotvec([0, 0, np.pi/10 * glfw.get_time()])
         transform[:3, :3] = r.as_matrix()
 
-        gl.glUniformMatrix4fv(transform_location, 1, gl.GL_FALSE, transform)
+        gl.glUniformMatrix4fv(transform_location, 1, gl.GL_TRUE, transform)
 
         glfw.poll_events()
 
