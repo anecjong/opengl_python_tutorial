@@ -5,8 +5,8 @@ import OpenGL.GL.shaders as shaders
 import numpy as np
 from ctypes import c_void_p
 from PIL import Image
-from scipy.spatial.transform import Rotation
-from math import radians, tan
+from math import sin, cos
+import glm
 
 vertex_shader_source = """
 #version 330 core
@@ -173,48 +173,48 @@ def main():
     processunit = ProcessInputUnit(shader)
 
     # model
-    model = np.identity(4, dtype=np.float32)
-    r = Rotation.from_rotvec([0.0, 0.0, 0.0])
-    model[:3, :3] = r.as_matrix()
-
-    # view
-    view = np.identity(4, dtype=np.float32)
-    view[0:3, 3] = np.array([0, 0, -3], dtype=np.float32).transpose()
+    model = glm.translate(glm.mat4(1.0), glm.vec3(0.0, 0.0, 0.0))
 
     # projection matrix
-    projection = perspective(45.0, 800.0/600.0, 0.1, 100)
+    projection = glm.perspective(glm.radians(45.0), 800.0/800.0, 0.1, 100.0)
 
     # many cubes
     cube_positions = [
-        np.array([0.0, 0.0, 0.0], dtype=np.float32),
-        np.array([2.0, 5.0, -15.0], dtype=np.float32),
-        np.array([-1.5, -2.2, -2.5], dtype=np.float32),
-        np.array([-3.8, -2.0, -12.3], dtype=np.float32),
-        np.array([2.4, -0.4, -3.5], dtype=np.float32),
-        np.array([-1.7, 3.0, -7.5], dtype=np.float32),
-        np.array([1.3, -2.0, -2.5], dtype=np.float32),
-        np.array([1.3, 2.0, -1.5], dtype=np.float32),
-        np.array([-1.3, 0.2, -1.5], dtype=np.float32),
+        glm.vec3(0.0, 0.0, 0.0    ),
+        glm.vec3(2.0, 5.0, -15.0  ),
+        glm.vec3(-1.5, -2.2, -2.5 ),
+        glm.vec3(-3.8, -2.0, -12.3),
+        glm.vec3(2.4, -0.4, -3.5  ),
+        glm.vec3(-1.7, 3.0, -7.5  ),
+        glm.vec3(1.3, -2.0, -2.5  ),
+        glm.vec3(1.3, 2.0, -1.5   ),
+        glm.vec3(-1.3, 0.2, -1.5  ),
     ]
+
 
     while not glfw.window_should_close(window):
         processunit.process_input(window)
 
-        gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader, "model"), 1, gl.GL_TRUE, model)
-        gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader, "view"), 1, gl.GL_TRUE, view)
-        gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader, "projection"), 1, gl.GL_TRUE, projection)
 
         glfw.poll_events()
+        # camera - view
+        radius = 10.0
+        cam_x = radius * cos(glfw.get_time())
+        cam_z = radius * sin(glfw.get_time())
+        view = glm.lookAt(glm.vec3(cam_x, 0.0, cam_z),
+                        glm.vec3(0.0, 0.0, 0.0),
+                        glm.vec3(0.0, 1.0, 0.0))
+
+        gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader, "view"), 1, gl.GL_FALSE, glm.value_ptr(view))
+        gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader, "projection"), 1, gl.GL_FALSE, glm.value_ptr(projection))
 
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         gl.glBindVertexArray(vao)
         for i, cube_position in enumerate(cube_positions):
             # model
-            model = np.identity(4, dtype=np.float32)
-            r = Rotation.from_rotvec((i+100.0) * glfw.get_time() / 200.0 * np.array([i%3, (i+1)%3, (i+2)%3], dtype=np.float32))
-            model[:3, :3] = r.as_matrix()
-            model[:3, 3] = cube_position.transpose()
-            gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader, "model"), 1, gl.GL_TRUE, model)
+            model = glm.translate(glm.mat4(1.0), cube_position)
+            model = glm.rotate(model, float((i+100.0) * glfw.get_time() / 200.0), glm.vec3(i%3, (i+1)%3, (i+2)%3))
+            gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader, "model"), 1, gl.GL_FALSE, glm.value_ptr(model))
             gl.glDrawArrays(gl.GL_TRIANGLES, 0, int(vertices.size / vertices.itemsize))
 
         glfw.swap_buffers(window)
@@ -247,25 +247,6 @@ class ProcessInputUnit():
                 self.mix_val = 0.0
             gl.glUniform1f(gl.glGetUniformLocation(self.shader, "mix_ratio"), self.mix_val)
         return
-
-def perspective(field_of_view_y: float, aspect: float, z_near: float, z_far: float) -> np.ndarray:
-    '''
-    opengl perspective for python
-    field of view y : degree
-    aspect: width / height
-    z near: near z plane
-    z far: far z plane
-    '''
-    t = tan(radians(field_of_view_y/2))
-    r = t * aspect
-    perspective_matrix = np.zeros((4, 4), dtype=np.float32)
-    perspective_matrix[0][0] = 1 / r
-    perspective_matrix[1][1] = 1 / t
-    perspective_matrix[2][2] = -(z_far + z_near)/(z_far - z_near)
-    perspective_matrix[2][3] = (-2.0 * z_far * z_near) / (z_far - z_near)
-    perspective_matrix[3][2] = -1.0
-
-    return perspective_matrix
 
 if __name__ == "__main__":
     main()
