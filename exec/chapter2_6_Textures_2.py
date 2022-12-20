@@ -5,6 +5,7 @@ import OpenGL.GL.shaders as shaders
 import numpy as np
 from ctypes import c_void_p
 from PIL import Image
+import os
 
 vertex_shader_source = """
 #version 330 core
@@ -128,7 +129,7 @@ def main():
     # gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGB, img.width, img.height, 0, gl.GL_RGB, gl.GL_UNSIGNED_BYTE, img.tobytes())
 
     # texture img load for png
-    img = Image.open("../resources/logo.png")
+    img = Image.open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "resources", "logo.png"))
     gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, img.width, img.height, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, img.tobytes())
     gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
 
