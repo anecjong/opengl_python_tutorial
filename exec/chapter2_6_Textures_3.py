@@ -121,7 +121,7 @@ def main():
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST)
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
     # texture img load
-    img = Image.open("../resources/fox.png")
+    img = Image.open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "resources", "fox.png"))
     gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, img.width, img.height, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, img.tobytes())
     gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
 

@@ -60,7 +60,7 @@ in vec2 tex_coord;
 
 struct Material {
     sampler2D diffuse;
-    vec3      specular;
+    sampler2D specular;
     float     shininess;
 }; 
 
@@ -89,7 +89,7 @@ void main() {
     vec3 view_dir = normalize(-frag_pos);
     vec3 reflect_dir = reflect(-light_dir, norm);
     float spec = pow(max(dot(view_dir, reflect_dir), 0.0), material.shininess);
-    vec3 specular = light.specular * (spec * material.specular);
+    vec3 specular = light.specular * (spec * vec3(texture(material.specular, tex_coord)));
 
     vec3 result = (ambient + diffuse + specular);
     frag_color = vec4(result, 1.0f);
@@ -198,10 +198,10 @@ def main():
     gl.glVertexAttribPointer(2, 2, gl.GL_FLOAT, gl.GL_FALSE, 8 * vertices.itemsize, c_void_p(6 * vertices.itemsize))
     gl.glEnableVertexAttribArray(2)
 
-    # texture binding
-    texture = gl.glGenTextures(1)
+    # texture binding - diffuse
+    texture_diffuse = gl.glGenTextures(1)
     gl.glActiveTexture(gl.GL_TEXTURE0)
-    gl.glBindTexture(gl.GL_TEXTURE_2D, texture)
+    gl.glBindTexture(gl.GL_TEXTURE_2D, texture_diffuse)
 
     # texture wrapping
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_REPEAT)
@@ -215,6 +215,28 @@ def main():
     img = Image.open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "resources", "logo.png")).transpose(Image.Transpose.FLIP_TOP_BOTTOM)
     gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, img.width, img.height, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, img.tobytes())
     gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
+
+    # texture binding - specular
+    texture_specular = gl.glGenTextures(1)
+    gl.glActiveTexture(gl.GL_TEXTURE1)
+    gl.glBindTexture(gl.GL_TEXTURE_2D, texture_specular)
+
+    # texture wrapping
+    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_REPEAT)
+    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_REPEAT)
+
+    # texture filtering
+    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST)
+    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
+
+    # texture img load
+    img = Image.open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "resources", "logo_otsu.png")).transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+    gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, img.width, img.height, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, img.tobytes())
+    gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
+
+    container_shader.use()
+    container_shader.uniform_int("material.diffuse", 0)
+    container_shader.uniform_int("material.specular", 1)
 
     # lamp vao
     lamp_vao = gl.glGenVertexArrays(1)
@@ -231,7 +253,7 @@ def main():
     gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_FILL)
     
     # camera location change
-    process_unit.camera.change_camera_pos(glm.vec3(0.0, 1.0, 5.0))
+    process_unit.camera.change_camera_pos(glm.vec3(0.0, -0.3, 5.0))
 
     while not glfw.window_should_close(window):
         process_unit.keyboard_input(window)
@@ -239,7 +261,7 @@ def main():
         # light position
         theta = glfw.get_time()
         radius = 2
-        light_pos = glm.vec3(cos(theta), 0.0, sin(theta))
+        light_pos = radius * glm.vec3(cos(theta/5), 0.0, sin(theta/5))
 
         gl.glClearColor(0.1, 0.1, 0.1, 1.0)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
@@ -258,8 +280,7 @@ def main():
         container_shader.uniform_mat4("model", model)
 
         # material
-        container_shader.uniform_vec3("material.specular", glm.vec3(0.5, 0.5, 0.5))
-        container_shader.uniform_float("material.shininess", 64.0)
+        container_shader.uniform_float("material.shininess", 8.0)
 
         # light
         lamp_color = glm.vec3(1.0, 1.0, 1.0)
