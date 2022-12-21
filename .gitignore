@@ -1,5 +1,6 @@
 exec/chapter2_4_Triangle.py
 exec/chapter2_5_Shaders_4.py
-resources/*.vs
+resources/*.txt
 resources/*.jpg
 resources/*.png
+exec/utils/__pycache__
