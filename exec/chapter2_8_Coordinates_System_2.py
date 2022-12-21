@@ -200,7 +200,7 @@ def main():
 
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         gl.glBindVertexArray(vao)
-        gl.glDrawArrays(gl.GL_TRIANGLES, 0, int(vertices.size / vertices.itemsize))
+        gl.glDrawArrays(gl.GL_TRIANGLES, 0, int(vertices.size / 5))
 
         glfw.swap_buffers(window)
     glfw.terminate()

@@ -216,7 +216,7 @@ def main():
             model = glm.translate(glm.mat4(1.0), cube_position)
             model = glm.rotate(model, float((i+100.0) * glfw.get_time() / 200.0), glm.vec3(i%3, (i+1)%3, (i+2)%3))
             gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader, "model"), 1, gl.GL_FALSE, glm.value_ptr(model))
-            gl.glDrawArrays(gl.GL_TRIANGLES, 0, int(vertices.size / vertices.itemsize))
+            gl.glDrawArrays(gl.GL_TRIANGLES, 0, int(vertices.size / 5))
 
         glfw.swap_buffers(window)
     glfw.terminate()

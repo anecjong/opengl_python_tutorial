@@ -216,7 +216,7 @@ def main():
             model[:3, :3] = r.as_matrix()
             model[:3, 3] = cube_position.transpose()
             gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader, "model"), 1, gl.GL_TRUE, model)
-            gl.glDrawArrays(gl.GL_TRIANGLES, 0, int(vertices.size / vertices.itemsize))
+            gl.glDrawArrays(gl.GL_TRIANGLES, 0, int(vertices.size / 5))
 
         glfw.swap_buffers(window)
     glfw.terminate()
