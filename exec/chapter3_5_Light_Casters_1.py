@@ -248,8 +248,8 @@ def main():
         # light
         shader.uniform_vec3("light.direction", glm.vec3(-0.2, -1.0, -0.3))
         shader.uniform_vec3("light.ambient",  glm.vec3(0.2))
-        shader.uniform_vec3("light.diffuse",  glm.vec3(0.4))
-        shader.uniform_vec3("light.specular", glm.vec3(0.8))
+        shader.uniform_vec3("light.diffuse",  glm.vec3(0.7))
+        shader.uniform_vec3("light.specular", glm.vec3(1.0))
 
         # material shininess / mix ratio
         shader.uniform_float("material.shininess", 32)

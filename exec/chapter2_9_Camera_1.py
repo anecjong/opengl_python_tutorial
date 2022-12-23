@@ -194,7 +194,7 @@ def main():
     # camera - view
     camera_position = glm.vec3(0.0, 0.0, 3.0)
     camera_target = glm.vec3(0.0, 0.0, 0.0)
-    camera_direction = glm.normalize(camera_target - camera_position)
+    camera_direction = glm.normalize(camera_position - camera_target)
 
     camera_right = glm.normalize(glm.cross(glm.vec3(0.0, 1.0, 0.0), camera_direction))
     camera_up = glm.normalize(glm.cross(camera_direction, camera_right))
